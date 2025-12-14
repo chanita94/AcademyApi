@@ -16,28 +16,49 @@ A full-stack web application built with **ASP.NET Core Web API** and **React**.
 
 ## Project Structure
 Academy/
+
 ├── client/ # React frontend (Vite)
+
+
 │ ├── public/ # Static assets
+
 │ ├── src/
+
 │ │ ├── components/ # Reusable UI components
+
 │ │ ├── contexts/ # React Context (AuthContext)
+
 │ │ ├── services/ # API calls
+
 │ │ ├── App.jsx # App routes
+
 │ │ └── main.jsx # Entry point
+
 │ ├── index.html
+
 │ ├── package.json
+
 │ └── vite.config.js
-│
+
+
 ├── server/ # ASP.NET Core backend
+
 │ └── AcademyApi/
+
 │ ├── Controllers/ # API controllers
+
 │ ├── Models/ # Entity models
+
 │ ├── DTOs/ # Data Transfer Objects
+
 │ ├── Services/ # Business logic
+
 │ ├── Data/ # DbContext & EF Core config
+
 │ ├── Migrations/ # Database migrations
+
 │ ├── Program.cs
+
 │ └── appsettings.json
-│
 ├── .gitignore
-└── README.md
+── README.md
