@@ -1,0 +1,14 @@
+import {Link} from 'react-router-dom';
+export default function CourseListItem({
+    course
+}) {
+    return (
+        <tr>
+            <td>{course.title}</td>
+            <td>{course.description}</td>
+            <td className="actions">
+                <Link to={`/courses/${course._id}`}>Details</Link>
+            </td>
+        </tr>
+    );
+}

@@ -1,0 +1,6 @@
+@AcademyApi_HostAddress = http://localhost:5129
+
+GET {{AcademyApi_HostAddress}}/
+Accept: application/json
+
+###
