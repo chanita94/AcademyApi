@@ -1,27 +1,27 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function Login() {
-    const { login } = useAuth();
+    const { login, user } = useAuth();
     const navigate = useNavigate();
-    const { user } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
     useEffect(() => {
-        if (user) navigate("/");
+        if (user) navigate("/"); // ако вече е логнат → пренасочване
     }, [user]);
+
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
         setLoading(true);
 
         try {
-            await login(email, password);
-            navigate("/"); // redirect after login
+            await login(email, password); // тук се изпраща fetch + JWT
+            navigate("/"); // redirect
         } catch (err) {
             setError(err.message || "Login failed");
         } finally {

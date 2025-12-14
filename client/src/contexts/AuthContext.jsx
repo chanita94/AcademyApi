@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 const baseUrl = "http://localhost:5129";
@@ -8,77 +8,58 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const token = localStorage.getItem("token");
+    return token ? { token } : null;
+  });
 
-  // Проверява дали юзер е логнат
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch(`${baseUrl}/api/auth/me`, {
-          credentials: "include",
-        });
-
-        if (res.ok) {
-          const text = await res.text();
-
-          if (text) {
-            const data = JSON.parse(text);
-            setUser(data);
-          } else {
-            setUser(null);
-          }
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    checkAuth();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   // LOGIN -------------------------------------------------
   async function login(email, password) {
-    const res = await fetch(`${baseUrl}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password }),
-    });
+    setLoading(true);
+    try {
+      const res = await fetch(`${baseUrl}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!res.ok) {
-      throw new Error("Invalid email or password");
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Invalid email or password");
+      }
+
+      const data = await res.json(); // { token: "..." }
+      localStorage.setItem("token", data.token);
+
+      // 🔹 fetch user info
+      const meRes = await fetch(`${baseUrl}/api/auth/me`, {
+        headers: { Authorization: `Bearer ${data.token}` },
+      });
+      const meData = await meRes.json();
+
+      // save token + user data
+      setUser({ token: data.token, ...meData });
+
+      return meData;
+    } finally {
+      setLoading(false);
     }
-
-    const me = await fetch(`${baseUrl}/api/auth/me`, {
-      credentials: "include",
-    });
-
-    const userData = await me.json();
-    setUser(userData);
-    return userData;
   }
+
 
   // REGISTER ---------------------------------------------
   async function register(firstName, lastName, email, password) {
     const res = await fetch(`${baseUrl}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        password,
-      }),
+      body: JSON.stringify({ firstName, lastName, email, password }),
     });
 
     if (!res.ok) {
-      throw new Error("Registration failed");
+      const errText = await res.text();
+      throw new Error(errText || "Registration failed");
     }
 
     // auto-login
@@ -86,13 +67,13 @@ export function AuthProvider({ children }) {
   }
 
   // LOGOUT ------------------------------------------------
-  async function logout() {
-    await fetch(`${baseUrl}/api/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+  function logout() {
+    localStorage.removeItem("token");
     setUser(null);
   }
+
+  // helper: get token
+  const getToken = () => (user ? user.token : null);
 
   const value = {
     user,
@@ -100,6 +81,7 @@ export function AuthProvider({ children }) {
     login,
     register,
     logout,
+    getToken,
     isAuthenticated: !!user,
   };
 

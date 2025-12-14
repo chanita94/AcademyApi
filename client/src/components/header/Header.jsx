@@ -1,9 +1,16 @@
 import styles from "./Header.module.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom"
 import { useAuth } from "../../contexts/AuthContext.jsx";
+
 export default function Header() {
     const { user, isAuthenticated, logout } = useAuth();
+    const navigate = useNavigate();
+    const handleLogout = () => {
+    logout();
+    navigate("/"); // пренасочваме към login
+};
     return (
         <>
             <header className={styles.header}>
@@ -22,9 +29,10 @@ export default function Header() {
                         {isAuthenticated ? (
                             <>
                                 <span style={{ marginLeft: 12, marginRight: 12 }}>
-                                    Hello, {user?.FirstName ?? user?.firstName ?? "User"}
+                                    Hello, {user?.firstName ?? "User"}
                                 </span>
-                                <button onClick={logout}>Logout</button>
+
+                                <button onClick={handleLogout}>Logout</button>
                             </>
                         ) : (
                             <>

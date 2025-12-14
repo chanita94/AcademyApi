@@ -1,25 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using AcademyApi.Models;
 using AcademyApi.Services;
-using AcademyApi.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace AcademyApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : Controller
+    public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly AppDbContext _context;
 
-        public UserController(IUserService userService, AppDbContext context)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _context = context;
         }
 
-        // GET: api/user
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
         {
@@ -27,7 +24,6 @@ namespace AcademyApi.Controllers
             return Ok(users);
         }
 
-        // GET: api/user/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById(int id)
         {
@@ -37,7 +33,6 @@ namespace AcademyApi.Controllers
             return Ok(user);
         }
 
-        // POST: api/user
         [HttpPost]
         public async Task<ActionResult<User>> Create(User user)
         {
@@ -45,7 +40,6 @@ namespace AcademyApi.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
-        // DELETE: api/user/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -54,8 +48,5 @@ namespace AcademyApi.Controllers
 
             return NoContent();
         }
-
-       
-
     }
 }

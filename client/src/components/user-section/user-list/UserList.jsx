@@ -1,10 +1,7 @@
 import React from "react";
 import UserListItem from "./user-list-item/UserListItem";
 export default function UserList({
-    users,
-    // isLoading,
-    // onUserDetailsClick,
-    // onUserDeleteClick,
+    users
 
 }) {
     return (
@@ -31,8 +28,6 @@ export default function UserList({
                         <UserListItem
                             key={user.id}
                             user={user}
-                            // onUserDetailsClick={onUserDetailsClick}
-                            // onUserDeleteClick={onUserDeleteClick}
                         />
                     )}
                 </tbody>

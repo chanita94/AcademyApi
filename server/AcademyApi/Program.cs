@@ -2,6 +2,9 @@
 using AcademyApi.Data;
 using Microsoft.EntityFrameworkCore;
 using AcademyApi.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace AcademyApi
 {
@@ -25,7 +28,22 @@ namespace AcademyApi
                 options.IdleTimeout = TimeSpan.FromHours(2);
                 options.Cookie.HttpOnly = true;
             });
-            
+            builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+            )
+        };
+    });
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactDev",
@@ -47,7 +65,7 @@ namespace AcademyApi
             }
             app.UseCors("AllowReactDev");
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseSession();
 

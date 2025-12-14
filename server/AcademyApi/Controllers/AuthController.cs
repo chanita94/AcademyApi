@@ -1,21 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AcademyApi.Models;
-using AcademyApi.Services;
 using AcademyApi.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using AcademyApi.Dtos;
 using Microsoft.AspNetCore.Identity;
+
 namespace AcademyApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _context;
 
-        public AuthController(AppDbContext context)
+        private readonly AppDbContext _context;
+        private readonly IConfiguration _config;
+
+        public AuthController(AppDbContext context, IConfiguration config)
         {
             _context = context;
+            _config = config;
         }
 
         // POST api/auth/register
@@ -30,9 +37,10 @@ namespace AcademyApi.Controllers
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email,
-                PasswordHash = PasswordHasher.Hash(dto.Password),
                 Role = "user"
             };
+            var hasher = new PasswordHasher<User>();
+            user.PasswordHash = hasher.HashPassword(user, dto.Password);
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -40,47 +48,71 @@ namespace AcademyApi.Controllers
             return Ok("Registered successfully");
         }
 
-
         // POST api/auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
+            // 1️⃣ Проверка дали user съществува
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (user == null) return Unauthorized("Invalid credentials");
+            if (user == null)
+                return Unauthorized("Invalid credentials");
 
-            var hashed = PasswordHasher.Hash(dto.Password);
-            if (user.PasswordHash != hashed) return Unauthorized("Invalid credentials");
+            // 2️⃣ Проверка на паролата
+            var hasher = new PasswordHasher<User>();
+            var result = hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
 
-            HttpContext.Session.SetInt32("UserId", user.Id);
+            if (result == PasswordVerificationResult.Failed)
+                return Unauthorized("Invalid credentials");
 
-            return Ok("Logged in");
+            // 3️⃣ Генериране на JWT token
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Email),
+        new Claim(ClaimTypes.Role, user.Role)
+    };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(2),
+                signingCredentials: creds
+            );
+
+            // 4️⃣ Връщаме token като JSON
+            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
-
-        // POST api/auth/logout
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            HttpContext.Session.Clear();
-            return Ok("Logged out");
-        }
-
+        // GET api/auth/me
         [HttpGet("me")]
         public async Task<IActionResult> Me()
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return Ok(null); // или return Unauthorized();
+            // 1️⃣ Вземаме userId от JWT claims
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized();
 
-            var user = await _context.Users.AsNoTracking()
-                         .Select(u => new { u.Id, u.FirstName, u.LastName, u.Email })
-                         .FirstOrDefaultAsync(u => u.Id == userId.Value);
+            var userId = int.Parse(userIdClaim);
+
+            // 2️⃣ Вземаме потребителя от базата
+            var user = await _context.Users
+                         .Where(u => u.Id == userId)
+                         .Select(u => new
+                         {
+                             u.Id,
+                             u.FirstName,
+                             u.LastName,
+                             u.Email
+                         })
+                         .FirstOrDefaultAsync();
+
+            if (user == null)
+                return Unauthorized();
 
             return Ok(user);
         }
-    }
 
-    public class LoginDto
-    {
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
+
     }
 }
