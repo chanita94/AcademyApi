@@ -23,6 +23,10 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Visual Studio
+.vs/
+**/.vs/
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json
@@ -35,6 +39,10 @@ ScaffoldingReadMe.txt
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
+
+# Frontend
+node_modules/
+dist/
 
 # Others
 ~$*
