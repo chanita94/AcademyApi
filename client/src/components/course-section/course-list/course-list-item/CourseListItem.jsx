@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 export default function CourseListItem({
     course
 }) {
@@ -7,8 +7,14 @@ export default function CourseListItem({
             <td>{course.title}</td>
             <td>{course.description}</td>
             <td className="actions">
-                <Link to={`/courses/${course._id}`}>Details</Link>
+                <Link
+                    to={`/courses/${course.id}`}
+                    className="btn btn-outline-primary btn-sm"
+                >
+                    Details
+                </Link>
             </td>
+
         </tr>
     );
 }

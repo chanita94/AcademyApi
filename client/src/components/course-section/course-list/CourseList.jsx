@@ -1,5 +1,7 @@
 import React from "react";
 import CourseListItem from "./course-list-item/CourseListItem";
+import { Link } from "react-router-dom";
+
 export default function CourseList({courses}) 
 {
     return (
@@ -24,6 +26,7 @@ export default function CourseList({courses})
                             key={course.id}
                             course={course}
                         />
+                        
                     )}
                 </tbody>
             </table >
