@@ -7,7 +7,7 @@ const baseUrl = "http://localhost:5129";
 export default function CourseDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, getToken } = useAuth();
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -32,6 +32,40 @@ export default function CourseDetails() {
 
         fetchCourse();
     }, [id]);
+    const deleteHandler = async () => {
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this course?"
+        );
+
+        if (!confirmDelete) return;
+
+        const token = getToken();
+        if (!token) {
+            alert("You must be logged in");
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${baseUrl}/api/course/${course.id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error("Delete failed");
+            }
+
+            navigate("/courses");
+        } catch (err) {
+            alert(err.message);
+        }
+    };
+
 
     if (loading) {
         return <p className="text-center mt-5">Loading...</p>;
@@ -64,12 +98,20 @@ export default function CourseDetails() {
                         </button>
 
                         {user && (
-                            <button
-                                className="btn btn-warning"
-                                onClick={() => navigate(`/courses/${course.id}/edit`)}
-                            >
-                                Edit
-                            </button>
+                            <>
+                                <button
+                                    className="btn btn-warning"
+                                    onClick={() => navigate(`/courses/${course.id}/edit`)}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={deleteHandler}
+                                >
+                                    Delete
+                                </button>
+                            </>
                         )}
                     </div>
 

@@ -57,16 +57,20 @@ public async Task<ActionResult<Course>> Create(Course course)
 
 
         // DELETE: api/course/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return Unauthorized("Login required");
-            var deleted = await _courseService.DeleteAsync(id);
-            if (!deleted) return NotFound();
+[Authorize]
+[HttpDelete("{id}")]
+public async Task<IActionResult> Delete(int id)
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            return NoContent();
-        }
+    if (userId == null)
+        return Unauthorized();
+
+    var deleted = await _courseService.DeleteAsync(id);
+    if (!deleted) return NotFound();
+
+    return NoContent();
+}
 
         [Authorize]
 [HttpPut("{id}")]
