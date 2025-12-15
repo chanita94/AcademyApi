@@ -42,6 +42,14 @@ namespace AcademyApi
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
             )
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine("JWT Authentication Failed: " + context.Exception.Message);
+                return Task.CompletedTask;
+            }
+        };
     });
 
             builder.Services.AddCors(options =>
@@ -65,9 +73,10 @@ namespace AcademyApi
             }
             app.UseCors("AllowReactDev");
             app.UseHttpsRedirection();
+            app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseSession();
 
 
             app.MapControllers();

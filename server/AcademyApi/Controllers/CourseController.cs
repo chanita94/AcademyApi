@@ -5,6 +5,8 @@ using AcademyApi.Models;
 using AcademyApi.Services;
 using AcademyApi.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace AcademyApi.Controllers
 {
@@ -39,15 +41,19 @@ namespace AcademyApi.Controllers
         }
 
         // POST: api/course
-        [HttpPost]
-        public async Task<ActionResult<Course>> Create(Course course)
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return Unauthorized("Login required");
-            var created = await _courseService.CreateAsync(course);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
+        
+[Authorize]
+[HttpPost]
+public async Task<ActionResult<Course>> Create(Course course)
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+    if (userId == null)
+        return Unauthorized();
+
+    var created = await _courseService.CreateAsync(course);
+    return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+}
         // DELETE: api/course/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
