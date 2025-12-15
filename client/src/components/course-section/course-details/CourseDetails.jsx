@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
 
 const baseUrl = "http://localhost:5129";
 
 export default function CourseDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const { user } = useAuth();
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -62,13 +63,16 @@ export default function CourseDetails() {
                             Back
                         </button>
 
-                        <button
-                            className="btn btn-warning"
-                            onClick={() => navigate(`/courses/${course.id}/edit`)}
-                        >
-                            Edit
-                        </button>
+                        {user && (
+                            <button
+                                className="btn btn-warning"
+                                onClick={() => navigate(`/courses/${course.id}/edit`)}
+                            >
+                                Edit
+                            </button>
+                        )}
                     </div>
+
                 </div>
             </div>
         </div>

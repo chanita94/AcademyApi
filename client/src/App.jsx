@@ -11,6 +11,7 @@ import CourseDetails from './components/course-section/course-details/CourseDeta
 import Contacts from './components/contacts/Contacts';
 import About from './components/about/About';
 import UserSection from './components/user-section/UserSection'
+import CourseEdit from './components/course-section/course-edit/CourseEdit';
 
 import './App.css';
 
@@ -32,6 +33,7 @@ function App() {
             <Route path='/contacts' element={<Contacts />} />
             <Route path='/about' element={<About />} />
             <Route path='/users' element={<UserSection />} />
+            <Route path="/courses/:id/edit" element={<CourseEdit />} />
           </Routes>
 
         </main>

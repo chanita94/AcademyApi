@@ -54,6 +54,8 @@ public async Task<ActionResult<Course>> Create(Course course)
     var created = await _courseService.CreateAsync(course);
     return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
 }
+
+
         // DELETE: api/course/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -65,18 +67,21 @@ public async Task<ActionResult<Course>> Create(Course course)
 
             return NoContent();
         }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Course updatedCourse)
-        {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null) return Unauthorized("Login required");
 
-            var result = await _courseService.UpdateAsync(id, updatedCourse);
+        [Authorize]
+[HttpPut("{id}")]
+public async Task<IActionResult> Update(int id, Course updatedCourse)
+{
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            if (result == null) return NotFound();
+    if (userId == null)
+        return Unauthorized();
 
-            return Ok(result);
-        }
+    var result = await _courseService.UpdateAsync(id, updatedCourse);
+    if (result == null) return NotFound();
+
+    return Ok(result);
+}
 
     }
 }
