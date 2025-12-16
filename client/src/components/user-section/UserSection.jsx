@@ -39,7 +39,6 @@ export default function UserSection() {
         })();
     }, [getToken]);
 
-    // 🔴 ЛИПСВАЩАТА ФУНКЦИЯ
     const deleteUserHandler = async (userId) => {
         const token = getToken();
 

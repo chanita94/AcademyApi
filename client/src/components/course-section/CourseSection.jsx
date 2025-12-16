@@ -1,16 +1,15 @@
 import CourseList from "./course-list/CourseList.jsx";
 import CourseAdd from "./course-add/CourseAdd.jsx";
 import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext"; // adjust path if needed
+import { useAuth } from "../../contexts/AuthContext";
 
 const baseUrl = "http://localhost:5129";
 
 export default function CourseSection() {
-    const { getToken } = useAuth(); // ⭐ get token from AuthContext
+    const { getToken, isAuthenticated } = useAuth();
     const [courses, setCourses] = useState([]);
     const [showCreate, setShowCreate] = useState(false);
 
-    // Fetch courses on mount
     useEffect(() => {
         (async function getCourses() {
             try {
@@ -27,7 +26,6 @@ export default function CourseSection() {
     const createCourseHandler = async (courseData) => {
         const token = getToken();
         if (!token) {
-            alert("You must be logged in to create a course.");
             return;
         }
 
@@ -42,7 +40,7 @@ export default function CourseSection() {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error ${response.status}`);
+                throw new Error("Create failed");
             }
 
             const createdCourse = await response.json();
@@ -58,17 +56,19 @@ export default function CourseSection() {
     return (
         <>
             <CourseList courses={courses} />
+            {isAuthenticated && !showCreate && (
+                <div className=" d-flex justify-content-center align-items-center">
+                    <button
+                        className="btn btn-outline-primary mt-3 "
+                        onClick={() => setShowCreate(true)}
+                    >
+                        Add new course
+                    </button>
+                </div>
 
-            {!showCreate && (
-                <button
-                    className="btn btn-primary"
-                    onClick={() => setShowCreate(true)}
-                >
-                    Add new course
-                </button>
             )}
 
-            {showCreate && (
+            {isAuthenticated && showCreate && (
                 <CourseAdd
                     onCreate={createCourseHandler}
                     onCancel={() => setShowCreate(false)}

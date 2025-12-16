@@ -1,4 +1,5 @@
 import { useState } from "react";
+import styles from  "./CourseAdd.module.css"
 
 export default function CourseAdd({
     onCreate,
@@ -21,9 +22,9 @@ export default function CourseAdd({
     };
 
     return (
-        <div className="card shadow-sm mt-4">
-            <div className="card-body">
-                <h5 className="card-title mb-3">Create Course</h5>
+        <div className={styles.modalOverlay}>
+            <div className={styles.modalCard}>
+                <h5>Create Course</h5>
 
                 <form onSubmit={submitHandler}>
                     <div className="mb-3">

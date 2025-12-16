@@ -28,30 +28,26 @@ namespace AcademyApi
                 options.IdleTimeout = TimeSpan.FromHours(2);
                 options.Cookie.HttpOnly = true;
             });
-            builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
-            )
-        };
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                )
+                };
+                options.Events = new JwtBearerEvents
+                {
+                OnAuthenticationFailed = context =>
+                {
                 Console.WriteLine("JWT Authentication Failed: " + context.Exception.Message);
-                return Task.CompletedTask;
-            }
-        };
-    });
-
+                return Task.CompletedTask;}
+                };
+            });
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowReactDev",
@@ -62,9 +58,7 @@ namespace AcademyApi
                         .AllowCredentials()
                 );
             });
-
             var app = builder.Build();
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -74,13 +68,9 @@ namespace AcademyApi
             app.UseCors("AllowReactDev");
             app.UseHttpsRedirection();
             app.UseSession();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

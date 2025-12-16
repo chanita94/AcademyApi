@@ -1,5 +1,4 @@
 export default function UserListItem({ user, currentUser, onDelete }) {
-    // Само администратор може да изтрива, и не може да изтрива други админи
     const canDelete = currentUser?.role === "Admin" && user.role !== "Admin";
 
     return (

@@ -1,3 +1,4 @@
+import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
@@ -8,17 +9,43 @@ export default function Footer() {
                     <div className="row">
                         <div className="col-md-4 mb-3">
                             <h4 className="fw-bold">Academy</h4>
-                            <img src="/school.svg" className={styles.logo}/>
+                            <img src="/school.svg" className={styles.logo} />
                             <p className="text-muted">
                                 A modern learning platform for students and professionals.
                             </p>
                         </div>
 
-                        <div className="col-md-4 mb-3">
-                            <h5 className="fw-bold">Quick Links</h5>
-                            <ul className="list-unstyled">
+                        <div className="col-md-4 mb-3 ">
+                            <h5 className="fw-bold">Follow Us</h5>
+                            <div className={styles.socialIcons}>
+                                <a
+                                    href="https://www.facebook.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="Facebook"
+                                >
+                                    <FaFacebookF />
+                                </a>
 
-                            </ul>
+                                <a
+                                    href="https://www.instagram.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="Instagram"
+                                >
+                                    <FaInstagram />
+                                </a>
+
+
+                                <a
+                                    href="https://www.linkedin.com/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    aria-label="LinkedIn"
+                                >
+                                    <FaLinkedinIn />
+                                </a>
+                            </div>
                         </div>
 
                         <div className="col-md-4 mb-3">

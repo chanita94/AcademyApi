@@ -16,15 +16,12 @@ export default function CourseEdit() {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
-    // 🔐 Redirect if NOT logged
     useEffect(() => {
         if (!user) {
             navigate("/login");
         }
     }, [user, navigate]);
 
-    // 📥 Load course data
     useEffect(() => {
         async function fetchCourse() {
             try {
@@ -55,7 +52,6 @@ export default function CourseEdit() {
         }));
     };
 
-    // ✏️ Update course
     const submitHandler = async (e) => {
         e.preventDefault();
 

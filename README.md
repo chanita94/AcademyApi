@@ -5,7 +5,7 @@ A full-stack web application built with **ASP.NET Core Web API** and **React**.
 ## Tech Stack
 - Backend: ASP.NET Core, Entity Framework Core, SQL Server
 - Frontend: React, Vite, React Router, Context API
-- Authentication: Session-based authentication
+- Authentication: JWT (JSON Web Token) based authentication
 - Styling: Bootstrap, CSS Modules
 
 ## Features
