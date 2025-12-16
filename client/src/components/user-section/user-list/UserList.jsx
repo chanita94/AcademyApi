@@ -1,9 +1,11 @@
 import React from "react";
 import UserListItem from "./user-list-item/UserListItem";
+import { useAuth } from "../../../contexts/AuthContext";
 export default function UserList({
-    users
-
+    users,
+    onDelete
 }) {
+    const { user: currentUser } = useAuth();
     return (
         <div>
             <table className="table table-hover table-striped" >
@@ -28,6 +30,8 @@ export default function UserList({
                         <UserListItem
                             key={user.id}
                             user={user}
+                            currentUser={currentUser}
+                            onDelete={onDelete}
                         />
                     )}
                 </tbody>

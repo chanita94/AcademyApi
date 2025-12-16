@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using AcademyApi.Models;
 using AcademyApi.Services;
+using AcademyApi.Data;
+using System.Security.Claims;
 
 namespace AcademyApi.Controllers
 {
@@ -10,11 +12,13 @@ namespace AcademyApi.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
+         private readonly AppDbContext _context; 
         private readonly IUserService _userService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, AppDbContext context)
         {
             _userService = userService;
+            _context = context;
         }
 
         [HttpGet]
@@ -24,29 +28,37 @@ namespace AcademyApi.Controllers
             return Ok(users);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetById(int id)
-        {
-            var user = await _userService.GetByIdAsync(id);
-            if (user == null) return NotFound();
+        // [HttpGet("{id}")]
+        // public async Task<ActionResult<User>> GetById(int id)
+        // {
+        //     var user = await _userService.GetByIdAsync(id);
+        //     if (user == null) return NotFound();
 
-            return Ok(user);
-        }
+        //     return Ok(user);
+        // }
 
-        [HttpPost]
-        public async Task<ActionResult<User>> Create(User user)
-        {
-            var created = await _userService.CreateAsync(user);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
+        // [HttpPost]
+        // public async Task<ActionResult<User>> Create(User user)
+        // {
+        //     var created = await _userService.CreateAsync(user);
+        //     return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        // }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var deleted = await _userService.DeleteAsync(id);
-            if (!deleted) return NotFound();
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("users/{id}")]
+public async Task<IActionResult> DeleteUser(int id)
+{
+    var targetUser = await _context.Users.FindAsync(id);
+    if (targetUser == null)
+        return NotFound();
 
-            return NoContent();
-        }
+    if (targetUser.Role == "Admin")
+        return BadRequest("Cannot delete another admin");
+
+    _context.Users.Remove(targetUser);
+    await _context.SaveChangesAsync();
+
+    return NoContent();
+}
     }
 }

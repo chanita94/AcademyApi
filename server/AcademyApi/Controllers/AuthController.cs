@@ -8,6 +8,8 @@ using System.Security.Claims;
 using System.Text;
 using AcademyApi.Dtos;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace AcademyApi.Controllers
 {
@@ -85,6 +87,7 @@ namespace AcademyApi.Controllers
             return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
         }
         // GET api/auth/me
+        [Authorize(Roles = "Admin")]
         [HttpGet("me")]
         public async Task<IActionResult> Me()
         {
@@ -103,7 +106,8 @@ namespace AcademyApi.Controllers
                              u.Id,
                              u.FirstName,
                              u.LastName,
-                             u.Email
+                             u.Email,
+                             u.Role
                          })
                          .FirstOrDefaultAsync();
 
